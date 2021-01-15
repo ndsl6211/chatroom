@@ -8,5 +8,5 @@
     "**/*"
   ],
   "ext": "js,json,ejs,ts",
-  "exec": "ts-node ./index.ts"
+  "exec": "npx ts-node ./index.ts"
 }
