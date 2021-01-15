@@ -1,0 +1,133 @@
+.main-content {
+  padding: 100px !important;
+  height: 500px;
+}
+
+.left-panel {
+  background-color: rgb(235, 235, 235);
+  height: 500px;
+  border-left: 7px solid black;
+  border-top: 7px solid black;
+  border-bottom: 7px solid gray;
+}
+
+.right-panel {
+  background-color: rgb(255, 255, 199);
+  height: 500px;
+  border-right: 7px solid gray;
+  border-top: 7px solid black;
+  border-bottom: 7px solid gray;
+  position: relative;
+}
+
+.person-header h2 {
+  text-align: center;
+}
+
+.message-area-header {
+  margin-bottom: 8px;
+}
+
+.message-area-header h2 {
+  display: inline;
+}
+
+.person {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 10px 5px;
+  border-radius: 5px;
+}
+
+.person.active {
+  background-color: rgb(150, 150, 150) !important;
+}
+
+.person:hover {
+  background-color: rgb(206, 206, 206);
+}
+
+.person .avatar {
+  width: 40px;
+  height: 40px;
+  border: 2px black solid;
+  border-radius: 50%;
+}
+
+.person .name {
+  margin-left: 10px;
+}
+
+.type-area {
+  position: absolute;
+  bottom: 10px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.type-area input {
+  border: none;
+  outline: none;
+  background-color: rgb(255, 255, 199);
+  border-top: solid 1px rgb(221, 221, 221);
+  height: 50px;
+  width: 100%;
+}
+
+.icon-send {
+  cursor: pointer;
+  width: 40px;
+}
+
+.incoming-message {
+  display: block;
+  position: relative;
+}
+
+.outgoing-message {
+  display: block;
+  position: relative;
+  text-align: right;
+}
+
+.message-area {
+  overflow-y: scroll;
+  height: 350px;
+}
+
+.message-area .profile {
+  text-align: center;
+  display: inline-block;
+  width: 40px;
+}
+
+
+.message-area .profile .incoming-avatar,
+.message-area .profile .outgoing-avatar {
+  width: 40px;
+  height: 40px;
+  display: block;
+}
+
+.message-area .profile .incoming-name,
+.message-area .profile .outgoing-name {
+  font-size: 12px;
+  width: 100%;
+}
+
+.incoming-message .message {
+  display: inline-block;
+  position: absolute;
+  top: 8px;
+  left: 50px;
+}
+
+.outgoing-message .message {
+  display: inline-block;
+  position: absolute;
+  top: 8px;
+  right: 50px;
+}

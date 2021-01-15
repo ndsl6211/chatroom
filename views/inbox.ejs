@@ -1,0 +1,225 @@
+<div class="container main-content">
+  <div class="row">
+    <div class="col-4 left-panel">
+      <div class="person-header">
+        <h2>Users</h2>
+      </div>
+      <% for( let i = 0; i < users.length; i++ ) { %>
+        <% if (users[i].name != me) { %>
+          <div class="person">
+            <img class="avatar" src="/img/avatar-0.png">
+            <span class="name"><%= users[i].name %>  </span>
+          </div>
+        <% } %>
+      <% } %>
+    </div>
+    <div class="col-8 right-panel">
+      <div class="message-area-header">
+        <h2>Send to: </h2>
+        <span id="message-target">???</span>
+      </div>
+      <div class="message-area" style="display: none;">
+
+        <!-- <div class="incoming-message">
+          <div class="profile">
+            <img class="incoming-avatar" src="/img/avatar-0.png">
+            <div class="incoming-name">name</div>
+          </div>
+          <div class="message">
+            MESSAGE
+          </div>
+        </div>
+
+        <div class="outgoing-message">
+          <div class="message">
+            MESSAGE
+          </div>
+          <div class="profile">
+            <img class="outgoing-avatar" src="/img/avatar-0.png">
+            <div class="outgoing-name">name</div>
+          </div>
+        </div> -->
+
+      </div>
+      <div class="type-area">
+        <input class="send-message">
+        <span class="icon-send">
+          <i class="fas fa-paper-plane fa-2x"></i>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<script src="/js/socket.io.js"></script>
+<script src="/js/moment.min.js"></script>
+<script>
+  $("document").ready(function () {
+    var target = null;
+    var me = '<%= me %>'
+
+    var userMessages = {}
+
+    // connect to socket server
+    var socket = io('http://localhost:10001', {
+      query: {
+        username: '<%= me %>'
+      }
+    })
+
+    // listen on connect event
+    socket.on('connect', function () {
+      console.log('connect trigger')
+    });
+
+    // listen on incoming message
+    socket.on('message', function(data) {
+      console.log('listen message!')
+      console.log(data)
+      if (me.trim() == data.from.trim()) {
+        if (!userMessages[data.to.trim()]){
+          userMessages[data.to.trim()] = []
+        }
+        userMessages[data.to.trim()].push({
+          from: data.from,
+          to: data.to,
+          msg: data.msg,
+          out: true
+        })
+      } else if (me.trim() == data.to.trim()) {
+        if (!userMessages[data.from.trim()]){
+          userMessages[data.from.trim()] = []
+        }
+        userMessages[data.from.trim()].push({ 
+          from: data.from,
+          to: data.to,
+          msg: data.msg,
+          out: false
+        })
+      }
+
+
+      $('.message-area').empty()
+
+      userMessages[target].forEach(function(data) {
+        console.log('append!', data)
+        if (data.out) {
+          $(".message-area").append(
+            `
+            <div class="outgoing-message">
+              <div class="message">${data.msg}</div>
+              <div class="profile">
+                <img class="outgoing-avatar" src="/img/avatar-0.png">
+                <div class="outgoing-name">${data.from}</div>
+              </div>
+            </div>
+            `
+          )
+        } else {
+          $(".message-area").append(
+            `
+            <div class="incoming-message">
+              <div class="profile">
+                <img class="incoming-avatar" src="/img/avatar-0.png">
+                <div class="incoming-name">${data.from}</div>
+              </div>
+              <div class="message">${data.msg}</div>
+            </div>
+            `
+          )
+        }
+      })
+    })
+
+    // listen stop typing event
+
+
+    // listen on new user added event
+    socket.on('newUser', function (newUser) {
+      if (newUser.name != me) {
+
+        console.log(newUser.name)
+        userMessages[newUser.name.trim()] = []
+        console.log(userMessages)
+      }
+    })
+
+    socket.on('disconnect', function () {
+      console.log('disconnect')
+    });
+
+    // listen click person
+    $('.person').on('click', function () {
+      $('.person').removeClass('active')
+      $(this).addClass('active')
+      $('#message-target').html($(this).find('.name').text())
+      target = $(this).find('.name').text().trim()
+      console.log(`!${target}!`)
+      update()
+      $('.message-area').show()
+    })
+
+    // listen click send
+    $('.icon-send').on('click', function () {
+      sendMessage()
+
+      update()
+    })
+
+    // press enter
+    $(".send-message").keyup(function (event) {
+      if (event.which == 13) {
+        sendMessage()
+
+        update()
+      }
+    })
+
+    function sendMessage() {
+      console.log(`send message from ${me} to ${target}`)
+      var data = $(".send-message").val()
+      socket.emit('message', {
+        from: me,
+        to: target,
+        msg: data
+      })
+      $(".send-message").val("")
+    }
+
+
+    function update() {
+      $('.message-area').empty()
+
+      userMessages[target].forEach(function(data) {
+        console.log('append!', data)
+        if (data.out) {
+          $(".message-area").append(
+            `
+            <div class="outgoing-message">
+              <div class="message">${data.msg}</div>
+              <div class="profile">
+                <img class="outgoing-avatar" src="/img/avatar-0.png">
+                <div class="outgoing-name">${data.from}</div>
+              </div>
+            </div>
+            `
+          )
+        } else {
+          $(".message-area").append(
+            `
+            <div class="incoming-message">
+              <div class="profile">
+                <img class="incoming-avatar" src="/img/avatar-0.png">
+                <div class="incoming-name">${data.from}</div>
+              </div>
+              <div class="message">${data.msg}</div>
+            </div>
+            `
+          )
+        }
+      })
+    }
+  })
+</script>
