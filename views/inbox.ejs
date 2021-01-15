@@ -4,14 +4,16 @@
       <div class="person-header">
         <h2>Users</h2>
       </div>
-      <% for( let i = 0; i < users.length; i++ ) { %>
-        <% if (users[i].name != me) { %>
-          <div class="person">
-            <img class="avatar" src="/img/avatar-0.png">
-            <span class="name"><%= users[i].name %>  </span>
-          </div>
+      <div class="person-area">
+        <% for( let i = 0; i < users.length; i++ ) { %>
+          <% if (users[i].name != me) { %>
+            <div class="person">
+              <img class="avatar" src="/img/avatar-0.png">
+              <span class="name"><%= users[i].name %>  </span>
+            </div>
+          <% } %>
         <% } %>
-      <% } %>
+      </div>
     </div>
     <div class="col-8 right-panel">
       <div class="message-area-header">
@@ -60,6 +62,7 @@
     var target = null;
     var me = '<%= me %>'
 
+    var users = []
     var userMessages = {}
 
     // connect to socket server
@@ -72,7 +75,23 @@
     // listen on connect event
     socket.on('connect', function () {
       console.log('connect trigger')
+
+      socket.on('disconnect', function (data) {
+        console.log('disconnect')
+        console.log(data)
+      });
     });
+
+    // listen on new user added event
+    socket.on('newUser', function (newUser) {
+      if (newUser.name != me) {
+
+        console.log('new user:', newUser)
+        userMessages[newUser.name.trim()] = []
+        console.log('userMessages:', userMessages)
+
+      }
+    })
 
     // listen on incoming message
     socket.on('message', function(data) {
@@ -100,55 +119,10 @@
         })
       }
 
-
-      $('.message-area').empty()
-
-      userMessages[target].forEach(function(data) {
-        console.log('append!', data)
-        if (data.out) {
-          $(".message-area").append(
-            `
-            <div class="outgoing-message">
-              <div class="message">${data.msg}</div>
-              <div class="profile">
-                <img class="outgoing-avatar" src="/img/avatar-0.png">
-                <div class="outgoing-name">${data.from}</div>
-              </div>
-            </div>
-            `
-          )
-        } else {
-          $(".message-area").append(
-            `
-            <div class="incoming-message">
-              <div class="profile">
-                <img class="incoming-avatar" src="/img/avatar-0.png">
-                <div class="incoming-name">${data.from}</div>
-              </div>
-              <div class="message">${data.msg}</div>
-            </div>
-            `
-          )
-        }
-      })
+      updateMessage()
     })
 
-    // listen stop typing event
-
-
-    // listen on new user added event
-    socket.on('newUser', function (newUser) {
-      if (newUser.name != me) {
-
-        console.log(newUser.name)
-        userMessages[newUser.name.trim()] = []
-        console.log(userMessages)
-      }
-    })
-
-    socket.on('disconnect', function () {
-      console.log('disconnect')
-    });
+    
 
     // listen click person
     $('.person').on('click', function () {
@@ -157,7 +131,7 @@
       $('#message-target').html($(this).find('.name').text())
       target = $(this).find('.name').text().trim()
       console.log(`!${target}!`)
-      update()
+      updateMessage()
       $('.message-area').show()
     })
 
@@ -165,7 +139,7 @@
     $('.icon-send').on('click', function () {
       sendMessage()
 
-      update()
+      updateMessage()
     })
 
     // press enter
@@ -173,7 +147,7 @@
       if (event.which == 13) {
         sendMessage()
 
-        update()
+        updateMessage()
       }
     })
 
@@ -188,8 +162,7 @@
       $(".send-message").val("")
     }
 
-
-    function update() {
+    function updateMessage() {
       $('.message-area').empty()
 
       userMessages[target].forEach(function(data) {

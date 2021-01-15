@@ -80,6 +80,8 @@ socket.on('connection', (client: SocketIO.Socket) => {
     name: username
   })
 
+  console.log('users:', global.users)
+
   client.on('message', function(data) {
     console.log('收到!')
     console.log(data)
